@@ -1,36 +1,74 @@
 import { View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Appbar, Card, useTheme, Text, Searchbar } from "react-native-paper";
+import {
+  Appbar,
+  Card,
+  useTheme,
+  Text,
+  Searchbar,
+  ActivityIndicator,
+} from "react-native-paper";
 import MovieService from "../service/MovieService";
 import { MasonryFlashList } from "@shopify/flash-list";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../types/StackParamlist";
-import { StatusBar } from "expo-status-bar";
 import { useDebounce } from "../hooks/useDebounce";
 import { HomeResult } from "../types";
-import { decode } from "html-entities";
-import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
+import MovieItem from "../components/MovieItem";
 
 const SearchScreen = () => {
   const [movies, setMovies] = useState({} as HomeResult);
+
   const theme = useTheme();
+
   const [searchQuery, setSearchQuery] = React.useState("");
-  const navigation = useNavigation<navigation<"HomeTab">>();
 
   const [loading, setLoading] = useState(false);
 
+  const [page, setPage] = useState(1);
+
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+
   const searchVal = useDebounce(searchQuery, 300);
+
+  const handleLoadMore = async () => {
+    if (page >= movies.pagecount) return;
+    setLoadMoreLoading(true);
+    setPage(page + 1);
+    const respone: HomeResult = await MovieService.search(
+      `${searchVal.toLowerCase()}&pg=${page}`
+    );
+    setMovies({
+      ...movies,
+      list: [
+        ...movies.list,
+        ...Array.from(
+          new Map(respone.list.map((item) => [item.movie_code, item])).values()
+        ),
+      ],
+    });
+  };
   useEffect(() => {
     if (!searchVal) {
       setMovies({} as HomeResult);
+      setPage(1);
+      setLoadMoreLoading(false);
       return;
     }
     const getMovies = async () => {
       setLoading(true);
       setMovies({} as HomeResult);
-      const respone = await MovieService.search(searchVal.toLowerCase());
-      setMovies(respone);
+      const respone: HomeResult = await MovieService.search(
+        searchVal.toLowerCase()
+      );
+      setMovies({
+        ...respone,
+        list: Array.from(
+          new Map(respone.list.map((item) => [item.movie_code, item])).values()
+        ),
+      });
       setLoading(false);
     };
     if (searchVal) {
@@ -55,55 +93,24 @@ const SearchScreen = () => {
       {!loading ? (
         <Animated.View style={{ flex: 1, paddingTop: 8 }}>
           <MasonryFlashList
+            ListFooterComponent={
+              <View>
+                {loadMoreLoading && page !== 1 && searchQuery && (
+                  <ActivityIndicator />
+                )}
+              </View>
+            }
+            onEndReached={handleLoadMore}
             showsVerticalScrollIndicator={false}
             numColumns={2}
             contentContainerStyle={{ paddingHorizontal: 4 }}
             data={movies?.list}
-            renderItem={({ item }) => (
-              <View style={{ width: "100%", paddingHorizontal: 4 }}>
-                <Card
-                  mode="elevated"
-                  theme={{
-                    roundness: 2,
-                  }}
-                  style={{
-                    marginVertical: 4,
-                    width: "100%",
-                  }}
-                  onPress={() =>
-                    navigation.navigate("VideoPlayer", { movie: item })
-                  }
-                >
-                  <Card.Cover
-                    theme={{
-                      isV3: false,
-                    }}
-                    source={{ uri: item.poster_url }}
-                  />
-                  <Card.Content
-                    style={{
-                      flex: 1,
-                    }}
-                  >
-                    <Text
-                      numberOfLines={2}
-                      style={{
-                        fontWeight: "bold",
-                      }}
-                      variant="labelMedium"
-                      lineBreakMode="middle"
-                    >
-                      {decode(item.name)}
-                    </Text>
-                  </Card.Content>
-                </Card>
-              </View>
-            )}
+            renderItem={({ item }) => <MovieItem item={item} />}
             estimatedItemSize={240}
           />
         </Animated.View>
       ) : (
-        <Animated.View style={{ flex: 1 }}>
+        <Animated.View style={{ flex: 1, paddingTop: 8 }}>
           <MasonryFlashList
             numColumns={2}
             showsVerticalScrollIndicator={false}

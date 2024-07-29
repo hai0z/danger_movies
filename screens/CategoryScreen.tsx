@@ -1,22 +1,15 @@
 import { View } from "react-native";
 import React, { useEffect, useState } from "react";
-import {
-  Appbar,
-  Card,
-  useTheme,
-  Text,
-  ActivityIndicator,
-  FAB,
-} from "react-native-paper";
+import { Appbar, useTheme, ActivityIndicator, FAB } from "react-native-paper";
 import MovieService, { Category } from "../service/MovieService";
 import { FlashList, MasonryFlashList } from "@shopify/flash-list";
 import { useNavigation } from "@react-navigation/native";
 import { navigation, route } from "../types/StackParamlist";
 import { HomeResult, List } from "../types";
 import { StatusBar } from "expo-status-bar";
-import { decode } from "html-entities";
 import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import MovieItem from "../components/MovieItem";
 
 interface Props {
   route: route<"Category">;
@@ -35,19 +28,26 @@ const CategoryScreen = ({ route }: Props) => {
 
   const getMovies = async () => {
     setLoading(true);
-    const respone = await MovieService.getByCategory(
+    const respone: HomeResult = await MovieService.getByCategory(
       categoryName,
       page,
       keyword
     );
-    setMovies(respone as HomeResult);
+    setMovies({
+      ...respone,
+      list: Array.from(
+        new Map(respone.list.map((item) => [item.movie_code, item])).values()
+      ),
+    });
     setLoading(false);
   };
 
   useEffect(() => {
     getMovies();
-  }, []);
+  }, [route.params]);
+
   const handleLoadMore = async () => {
+    if (page >= movies.pagecount) return;
     setLoadMoreLoading(true);
     setPage(page + 1);
     const respone: HomeResult = await MovieService.getByCategory(
@@ -59,7 +59,14 @@ const CategoryScreen = ({ route }: Props) => {
     if (respone.pagecount > page) {
       setMovies({
         ...movies,
-        list: [...movies.list, ...respone.list],
+        list: [
+          ...movies.list,
+          ...Array.from(
+            new Map(
+              respone.list.map((item) => [item.movie_code, item])
+            ).values()
+          ),
+        ],
       });
     }
     setLoadMoreLoading(false);
@@ -107,43 +114,7 @@ const CategoryScreen = ({ route }: Props) => {
             numColumns={2}
             contentContainerStyle={{ paddingHorizontal: 4 }}
             data={movies?.list}
-            renderItem={({ item }) => (
-              <View style={{ width: "100%", paddingHorizontal: 4 }}>
-                <Card
-                  theme={{
-                    roundness: 2,
-                  }}
-                  mode="elevated"
-                  style={{
-                    marginVertical: 4,
-                  }}
-                  onPress={() =>
-                    navigation.navigate("VideoPlayer", { movie: item })
-                  }
-                >
-                  <Card.Cover
-                    theme={{
-                      isV3: false,
-                    }}
-                    fadeDuration={200}
-                    source={{ uri: item.poster_url }}
-                    resizeMode="cover"
-                  />
-                  <Card.Content>
-                    <Text
-                      numberOfLines={2}
-                      style={{
-                        fontWeight: "bold",
-                      }}
-                      variant="labelMedium"
-                      lineBreakMode="middle"
-                    >
-                      {decode(item.name)}
-                    </Text>
-                  </Card.Content>
-                </Card>
-              </View>
-            )}
+            renderItem={({ item }) => <MovieItem item={item} />}
             estimatedItemSize={240}
           />
         </Animated.View>

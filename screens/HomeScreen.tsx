@@ -19,6 +19,7 @@ import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
 import { useAppStore } from "../zustand/appState";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { FlashList, MasonryFlashList } from "@shopify/flash-list";
+import MovieItem from "../components/MovieItem";
 
 const HomeScreen = () => {
   const [movies, setMovies] = useState({} as HomeResult);
@@ -29,7 +30,6 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
 
   const scrollViewRef = React.useRef<FlashList<List>>(null);
-  const navigation = useNavigation<navigation<"HomeTab">>();
 
   const [isScrolled, setIsScrolled] = React.useState(false);
 
@@ -44,7 +44,12 @@ const HomeScreen = () => {
   ]);
   const getMovies = async (page: number) => {
     const respone: HomeResult = await MovieService.getAll(page);
-    setMovies(respone);
+    setMovies({
+      ...respone,
+      list: Array.from(
+        new Map(respone.list.map((item) => [item.movie_code, item])).values()
+      ),
+    });
     setLoading(false);
   };
 
@@ -56,12 +61,18 @@ const HomeScreen = () => {
   }, []);
 
   const handleLoadMore = async () => {
+    if (page >= movies.pagecount) return;
     setLoadMoreLoading(true);
     setPage(page + 1);
     const respone: HomeResult = await MovieService.getAll(page);
     setMovies({
       ...movies,
-      list: [...movies.list, ...respone.list],
+      list: [
+        ...movies.list,
+        ...Array.from(
+          new Map(respone.list.map((item) => [item.movie_code, item])).values()
+        ),
+      ],
     });
   };
 
@@ -97,7 +108,10 @@ const HomeScreen = () => {
         />
         <Appbar.Action
           icon={viewType === "list" ? "view-grid-outline" : "view-list"}
-          onPress={() => setViewType(viewType === "list" ? "grid" : "list")}
+          onPress={() => {
+            setViewType(viewType === "list" ? "grid" : "list");
+            setIsScrolled(false);
+          }}
         />
       </Appbar.Header>
       {!loading ? (
@@ -119,7 +133,6 @@ const HomeScreen = () => {
                 {loadMoreLoading && page !== 1 && <ActivityIndicator />}
               </View>
             }
-            removeClippedSubviews
             onEndReached={handleLoadMore}
             showsVerticalScrollIndicator={false}
             numColumns={viewType === "list" ? 1 : 2}
@@ -127,57 +140,7 @@ const HomeScreen = () => {
             data={movies.list}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => {
-              return (
-                <View style={{ width: "100%", paddingHorizontal: 4 }}>
-                  <Card
-                    theme={{
-                      roundness: 2,
-                    }}
-                    mode="elevated"
-                    style={{
-                      marginVertical: 4,
-                    }}
-                    onPress={() =>
-                      navigation.navigate("VideoPlayer", { movie: item })
-                    }
-                  >
-                    <Card.Cover
-                      theme={{
-                        isV3: false,
-                      }}
-                      source={{ uri: item.poster_url }}
-                      resizeMode="cover"
-                    />
-                    <View
-                      style={{ position: "absolute", bottom: 55, right: 5 }}
-                    >
-                      <Surface
-                        elevation={5}
-                        style={{
-                          borderRadius: 3,
-                          padding: 2,
-                          opacity: 0.85,
-                        }}
-                        mode="flat"
-                      >
-                        <Text variant="labelSmall">{item.time}</Text>
-                      </Surface>
-                    </View>
-                    <Card.Content>
-                      <Text
-                        numberOfLines={2}
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        variant="labelMedium"
-                        lineBreakMode="middle"
-                      >
-                        {decode(item.name)}
-                      </Text>
-                    </Card.Content>
-                  </Card>
-                </View>
-              );
+              return <MovieItem item={item} />;
             }}
             estimatedItemSize={240}
           />

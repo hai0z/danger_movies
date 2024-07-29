@@ -56,8 +56,6 @@ export default function VideoPlayer() {
     {} as MovieDetailResult
   );
 
-  const [movieId, setMovieId] = React.useState(movie.id);
-
   const [fullscreen, setFullscreen] = React.useState(false);
 
   const [isMuted, setIsMuted] = React.useState(true);
@@ -70,10 +68,6 @@ export default function VideoPlayer() {
 
   const [actor, setActor] = React.useState<string[]>(movie.actor);
 
-  const [src, setSrc] = React.useState<string>(
-    convertSource(movie.episodes.server_data.Full?.link_embed as string)
-  );
-
   const [relatedVideos, setRelatedVideos] = React.useState<HomeResult>(
     {} as HomeResult
   );
@@ -81,28 +75,6 @@ export default function VideoPlayer() {
   const navigation = useNavigation<navigation<"VideoPlayer">>();
 
   const theme = useTheme();
-
-  const hadleChangeVideo = async (
-    movieId: number,
-    title: string,
-    actor: string[],
-    link: string
-  ) => {
-    setMovieId(movieId);
-    setTitle(title);
-    setActor(actor);
-    setSrc(convertSource(link));
-    await video.current?.loadAsync(
-      {
-        uri: convertSource(link),
-      },
-      {
-        shouldPlay: true,
-        isMuted: true,
-      },
-      true
-    );
-  };
 
   React.useEffect(() => {
     const getRelatedVideos = async () => {
@@ -120,12 +92,12 @@ export default function VideoPlayer() {
   React.useEffect(() => {
     (async () => {
       const respone: MovieDetailResult = await MovieService.getMovieDetail(
-        movieId
+        movie.id
       );
       setMovieDetail(respone);
       setLoading(false);
     })();
-  }, [movieId]);
+  }, [movie.id]);
 
   React.useEffect(() => {
     setLoading(true);
@@ -144,7 +116,8 @@ export default function VideoPlayer() {
         },
         true
       )
-      .then(() => setLoading(false));
+      .then(() => setLoading(false))
+      .catch(() => Alert.alert("Lỗi", "Không thể phát video này"));
   }, [route.params.movie.id]);
 
   React.useEffect(() => {
@@ -217,7 +190,9 @@ export default function VideoPlayer() {
             shouldPlay: true,
             resizeMode: ResizeMode.CONTAIN,
             source: {
-              uri: src,
+              uri: convertSource(
+                movie.episodes.server_data.Full?.link_embed as string
+              ),
             },
             posterSource: {
               uri: movie.poster_url,
@@ -339,32 +314,20 @@ export default function VideoPlayer() {
               ) : (
                 <View style={{ flex: 1 }}>
                   <FlashList
-                    extraData={src}
                     estimatedItemSize={120}
                     data={relatedVideos.list}
+                    keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                      <View key={item?.id}>
+                      <View>
                         <TouchableRipple
                           rippleColor={theme.colors.surfaceVariant}
                           onPress={() =>
-                            hadleChangeVideo(
-                              item?.id,
-                              item?.name,
-                              item.actor,
-                              item.episodes.server_data?.Full
-                                ?.link_embed as string
-                            )
+                            navigation.navigate("VideoPlayer", {
+                              movie: item,
+                            })
                           }
                           style={{
                             marginVertical: 4,
-                            backgroundColor:
-                              src ===
-                              convertSource(
-                                item?.episodes?.server_data?.Full
-                                  ?.link_embed as string
-                              )
-                                ? theme.colors.primary
-                                : "transparent",
                           }}
                         >
                           <View
@@ -386,38 +349,10 @@ export default function VideoPlayer() {
                             <View
                               style={{ marginLeft: 8, flex: 1, marginRight: 8 }}
                             >
-                              <Text
-                                variant="labelLarge"
-                                numberOfLines={2}
-                                style={{
-                                  color:
-                                    src ===
-                                    convertSource(
-                                      item?.episodes?.server_data?.Full
-                                        ?.link_embed as string
-                                    )
-                                      ? theme.colors.onPrimary
-                                      : theme.colors.onBackground,
-                                }}
-                              >
+                              <Text variant="labelLarge" numberOfLines={2}>
                                 {decode(item?.name)}
                               </Text>
-                              <Text
-                                numberOfLines={2}
-                                variant="bodySmall"
-                                style={{
-                                  textAlign: "justify",
-                                  marginTop: 4,
-                                  color:
-                                    src ===
-                                    convertSource(
-                                      item?.episodes?.server_data?.Full
-                                        ?.link_embed as string
-                                    )
-                                      ? theme.colors.onPrimary
-                                      : theme.colors.onBackground,
-                                }}
-                              >
+                              <Text numberOfLines={2} variant="bodySmall">
                                 {item?.episodes?.server_name} {" - "}
                                 {item?.episodes?.server_data?.Full?.slug}
                               </Text>

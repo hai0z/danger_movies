@@ -1,14 +1,13 @@
-import React, { forwardRef, useCallback, useMemo } from "react";
-import { View, StyleSheet, useWindowDimensions, Image } from "react-native";
+import React, { forwardRef, useMemo } from "react";
+import { View, useWindowDimensions, Image } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetView,
   TouchableOpacity,
 } from "@gorhom/bottom-sheet";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { List } from "../types/movieDetail";
 import { ScrollView } from "react-native-gesture-handler";
-import { Divider, Text, useTheme, Button, Chip } from "react-native-paper";
+import { Divider, Text, useTheme, Chip, IconButton } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../types/StackParamlist";
 import { Category } from "../service/MovieService";
@@ -25,22 +24,19 @@ const MovieDetailModal = forwardRef<BottomSheetModal, Props>((props, ref) => {
 
   const { movie, handleClose } = props;
   // variables
-  const snapPoints = useMemo(() => [height - (width * 9) / 16], []);
+  const snapPoints = useMemo(() => [height - (width * 9) / 16, "100%"], []);
 
   // callbacks
 
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
-
   const navigation = useNavigation<navigation<"Category">>();
   // renders
+
   return (
     <BottomSheetModal
       enableDismissOnClose
+      enablePanDownToClose
       ref={ref}
       snapPoints={snapPoints}
-      onChange={handleSheetChanges}
       backgroundStyle={{
         backgroundColor: theme.colors.background,
       }}
@@ -49,8 +45,6 @@ const MovieDetailModal = forwardRef<BottomSheetModal, Props>((props, ref) => {
       <BottomSheetView>
         <View
           style={{
-            marginHorizontal: 10,
-            marginVertical: 4,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
@@ -58,20 +52,11 @@ const MovieDetailModal = forwardRef<BottomSheetModal, Props>((props, ref) => {
         >
           <Text
             variant="titleLarge"
-            style={{ fontWeight: "bold", marginBottom: 4 }}
+            style={{ fontWeight: "bold", marginLeft: 10 }}
           >
             Nội dung mô tả
           </Text>
-          <TouchableOpacity
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <MaterialCommunityIcons
-              onPress={handleClose}
-              name="close"
-              size={24}
-              color={theme.colors.onBackground}
-            />
-          </TouchableOpacity>
+          <IconButton icon={"close"} onPress={handleClose} />
         </View>
         <Divider />
         <ScrollView
