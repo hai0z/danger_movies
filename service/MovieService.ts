@@ -83,7 +83,7 @@ class MovieService {
   };
   public getRandomVideo = async () => {
     const page = Math.floor(Math.random() * 2003) + 1;
-    const response = await api.get(
+    const response = await api.get<HomeResult>(
       `provide/vod?ac=detail&pg=${page}${this.getRandomParam()}`
     );
     return response.data;

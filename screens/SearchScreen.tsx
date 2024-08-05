@@ -2,16 +2,12 @@ import { View } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   Appbar,
-  Card,
   useTheme,
-  Text,
   Searchbar,
   ActivityIndicator,
 } from "react-native-paper";
 import MovieService from "../service/MovieService";
 import { MasonryFlashList } from "@shopify/flash-list";
-import { useNavigation } from "@react-navigation/native";
-import { navigation } from "../types/StackParamlist";
 import { useDebounce } from "../hooks/useDebounce";
 import { HomeResult } from "../types";
 import Animated from "react-native-reanimated";
@@ -71,7 +67,7 @@ const SearchScreen = () => {
       });
       setLoading(false);
     };
-    if (searchVal) {
+    if (searchVal && searchVal.length > 0) {
       getMovies();
     }
   }, [searchVal]);

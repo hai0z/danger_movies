@@ -1,5 +1,5 @@
 import { navigation, route } from "../types/StackParamlist";
-
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as React from "react";
 import {
   View,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   BackHandler,
   Alert,
+  ToastAndroid,
 } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -32,6 +33,8 @@ import SkeletonMovieItem from "../components/Skeleton/SkeletonMovieItem";
 import { FlashList } from "@shopify/flash-list";
 import { decode } from "html-entities";
 import { defaultProps } from "expo-video-player/dist/props";
+import WebView from "react-native-webview";
+import { useAppStore } from "../zustand/appState";
 
 const convertSource = (source: string) => {
   return source?.replace("https://avdbapi.com/player/?s=", "");
@@ -72,10 +75,23 @@ export default function VideoPlayer() {
     {} as HomeResult
   );
 
+  const likedVideos = useAppStore((state) => state.likeVideos);
+
   const navigation = useNavigation<navigation<"VideoPlayer">>();
 
   const theme = useTheme();
 
+  const toggleLike = () => {
+    if (likedVideos.includes(movie)) {
+      useAppStore
+        .getState()
+        .setLikeVideos(likedVideos.filter((item) => item !== movie));
+      ToastAndroid.show("Đã xoá khỏi yêu thích", ToastAndroid.SHORT);
+    } else {
+      useAppStore.getState().setLikeVideos([...likedVideos, movie]);
+      ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT);
+    }
+  };
   React.useEffect(() => {
     const getRelatedVideos = async () => {
       setRelatedVideosLoading(true);
@@ -148,7 +164,7 @@ export default function VideoPlayer() {
           backgroundColor: "#000000",
         }}
       >
-        <VideoPlayers
+        {/* <VideoPlayers
           {...defaultProps}
           autoHidePlayer={false}
           errorCallback={() => Alert.alert("Lỗi", "Không thể phát video này")}
@@ -212,7 +228,22 @@ export default function VideoPlayer() {
               : width * (9 / 16),
             width: fullscreen ? Dimensions.get("window").width : width,
           }}
-        />
+        /> */}
+        <View
+          style={{
+            width,
+            height: width * (9 / 16),
+          }}
+        >
+          <WebView
+            javaScriptEnabled
+            scrollEnabled={false}
+            allowsFullscreenVideo={true}
+            source={{
+              uri: movie.episodes.server_data.Full?.link_embed as string,
+            }}
+          />
+        </View>
         <View
           style={{
             flex: 1,
@@ -235,16 +266,38 @@ export default function VideoPlayer() {
             </View>
           ) : (
             <View>
-              <Text
-                variant="titleMedium"
-                numberOfLines={2}
+              <View
                 style={{
-                  fontWeight: "bold",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                   paddingHorizontal: 8,
                 }}
               >
-                {decode(title)}
-              </Text>
+                <Text
+                  variant="titleMedium"
+                  numberOfLines={2}
+                  style={{
+                    fontWeight: "bold",
+                    flex: 1,
+                  }}
+                >
+                  {decode(title)}
+                </Text>
+                <TouchableOpacity onPress={toggleLike}>
+                  <MaterialCommunityIcons
+                    name={
+                      likedVideos.includes(movie) ? "heart" : "heart-outline"
+                    }
+                    size={32}
+                    color={
+                      likedVideos.includes(movie)
+                        ? "red"
+                        : theme.colors.onSurface
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
               <View
                 style={{
                   flexDirection: "row",

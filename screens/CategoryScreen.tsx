@@ -14,6 +14,7 @@ import MovieItem from "../components/MovieItem";
 interface Props {
   route: route<"Category">;
 }
+
 const CategoryScreen = ({ route }: Props) => {
   const [movies, setMovies] = useState({} as HomeResult);
   const [page, setPage] = useState(1);

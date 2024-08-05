@@ -1,18 +1,7 @@
 import { RefreshControl, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import {
-  Appbar,
-  Card,
-  useTheme,
-  Text,
-  ActivityIndicator,
-  FAB,
-  Surface,
-} from "react-native-paper";
-import { decode } from "html-entities";
+import { Appbar, useTheme, ActivityIndicator, FAB } from "react-native-paper";
 import MovieService from "../service/MovieService";
-import { useNavigation } from "@react-navigation/native";
-import { navigation } from "../types/StackParamlist";
 import { StatusBar } from "expo-status-bar";
 import { HomeResult, List } from "../types";
 import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
