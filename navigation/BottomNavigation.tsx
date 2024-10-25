@@ -4,18 +4,20 @@ import HomeScreen from "../screens/HomeScreen";
 import SearchScreen from "../screens/SearchScreen";
 import DiscoverScreen from "../screens/DiscoverScreen";
 import FavoriteScreen from "../screens/FavoriteScreen";
+import VipScreen from "../screens/VipScreen";
 
 const TabNavigation = () => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     {
-      key: "music",
+      key: "home",
       title: "Trang chủ",
       focusedIcon: "home",
       unfocusedIcon: "home-outline",
     },
     { key: "search", title: "Tìm kiếm", focusedIcon: "magnify" },
     { key: "discovery", title: "Khám phá", focusedIcon: "earth" },
+    { key: "vip", title: "Pro", focusedIcon: "professional-hexagon" },
     {
       key: "favorite",
       title: "Yêu thích",
@@ -25,10 +27,11 @@ const TabNavigation = () => {
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    music: HomeScreen,
+    home: HomeScreen,
     search: SearchScreen,
     discovery: DiscoverScreen,
     favorite: FavoriteScreen,
+    vip: VipScreen,
   });
 
   return (

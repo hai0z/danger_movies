@@ -1,4 +1,4 @@
-import { RefreshControl, View } from "react-native";
+import { RefreshControl, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Appbar, useTheme, ActivityIndicator, FAB } from "react-native-paper";
 import MovieService from "../service/MovieService";
@@ -26,11 +26,16 @@ const HomeScreen = () => {
     state.theme,
     state.setTheme,
   ]);
-
+  const [appMode, setAppMode] = useAppStore((state) => [
+    state.appMode,
+    state.setAppMode,
+  ]);
   const [viewType, setViewType] = useAppStore((state) => [
     state.viewType,
     state.setViewType,
   ]);
+  const [isAppModeChanged, setIsAppModeChanged] = React.useState(false);
+
   const getMovies = async (page: number) => {
     const respone: HomeResult = await MovieService.getAll(page);
     setMovies({
@@ -49,10 +54,10 @@ const HomeScreen = () => {
     setRefreshing(false);
   }, []);
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = async (currentPage: number) => {
     if (page >= movies.pagecount) return;
     setLoadMoreLoading(true);
-    setPage(page + 1);
+    setPage(currentPage);
     const respone: HomeResult = await MovieService.getAll(page);
     setMovies({
       ...movies,
@@ -69,6 +74,36 @@ const HomeScreen = () => {
     getMovies(1);
   }, []);
 
+  useEffect(() => {
+    setIsAppModeChanged(true);
+    setPage(1);
+    const timer = setTimeout(() => {
+      setIsAppModeChanged(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [appMode]);
+
+  if (isAppModeChanged) {
+    return (
+      <Animated.View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.colors.background,
+        }}
+        exiting={FadeOut.duration(1000)}
+      >
+        <StatusBar
+          backgroundColor="transparent"
+          style={theme.dark ? "light" : "dark"}
+        />
+        <Text style={{ fontSize: 69 }}>
+          {appMode === "angle" ? "😇" : "😈"}{" "}
+        </Text>
+      </Animated.View>
+    );
+  }
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
       <FAB
@@ -90,8 +125,12 @@ const HomeScreen = () => {
         style={theme.dark ? "light" : "dark"}
       />
       <Appbar.Header>
-        <Appbar.Content title={`Tất cả phim`} />
+        <Appbar.Content title={`Tất cả phim `} />
         <Appbar.Action
+          delayLongPress={1000}
+          onLongPress={() =>
+            setAppMode(appMode === "angle" ? "devil" : "angle")
+          }
           icon={themeMode === "dark" ? "weather-sunny" : "weather-night"}
           onPress={() => setThemeMode(themeMode === "light" ? "dark" : "light")}
         />
@@ -118,11 +157,17 @@ const HomeScreen = () => {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
             ListFooterComponent={
-              <View>
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 50,
+                }}
+              >
                 {loadMoreLoading && page !== 1 && <ActivityIndicator />}
               </View>
             }
-            onEndReached={handleLoadMore}
+            onEndReached={() => handleLoadMore(page + 1)}
             showsVerticalScrollIndicator={false}
             numColumns={viewType === "list" ? 1 : 2}
             contentContainerStyle={{ paddingHorizontal: 4 }}

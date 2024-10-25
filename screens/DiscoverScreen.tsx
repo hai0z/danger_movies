@@ -54,45 +54,25 @@ const DiscoverScreen = () => {
       <FlashList
         showsVerticalScrollIndicator={false}
         estimatedItemSize={240}
-        numColumns={2}
         contentContainerStyle={{ paddingHorizontal: 4 }}
         data={categery}
         renderItem={({ item }) => (
-          <View
-            style={{ marginBottom: 8, paddingHorizontal: 4, width: "100%" }}
+          <Button
+            compact
+            mode="elevated"
+            key={item.name}
+            onPress={() => {
+              navigation.navigate("Category", {
+                categoryName: item.category,
+                title: item.name,
+              });
+            }}
+            style={{
+              margin: 4,
+            }}
           >
-            <Card
-              mode="elevated"
-              theme={{
-                roundness: 2,
-              }}
-              onPress={() =>
-                navigation.navigate("Category", {
-                  categoryName: item.category,
-                  title: item.name,
-                })
-              }
-            >
-              <Card.Cover
-                theme={{
-                  roundness: 4,
-                  isV3: false,
-                }}
-                source={{
-                  uri: item.img,
-                }}
-              />
-              <Card.Content>
-                <Text
-                  numberOfLines={1}
-                  variant="labelLarge"
-                  style={{ fontWeight: "bold" }}
-                >
-                  {item.name}
-                </Text>
-              </Card.Content>
-            </Card>
-          </View>
+            <Text variant="labelMedium">{item.name}</Text>
+          </Button>
         )}
       />
     </View>

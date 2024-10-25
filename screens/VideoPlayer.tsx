@@ -1,20 +1,10 @@
 import { navigation, route } from "../types/StackParamlist";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as React from "react";
-import {
-  View,
-  useWindowDimensions,
-  Image,
-  Dimensions,
-  BackHandler,
-  Alert,
-  ToastAndroid,
-} from "react-native";
-import { Video, ResizeMode } from "expo-av";
+import { View, useWindowDimensions, Image, ToastAndroid } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Divider, TouchableRipple, useTheme } from "react-native-paper";
 import { Text } from "react-native-paper";
-import * as ExpoOrientation from "expo-screen-orientation";
 import VideoPlayers from "../components/VideoPlayer/";
 import { setStatusBarHidden, StatusBar } from "expo-status-bar";
 import { HomeResult } from "../types";
@@ -32,13 +22,8 @@ import {
 import SkeletonMovieItem from "../components/Skeleton/SkeletonMovieItem";
 import { FlashList } from "@shopify/flash-list";
 import { decode } from "html-entities";
-import { defaultProps } from "expo-video-player/dist/props";
 import WebView from "react-native-webview";
 import { useAppStore } from "../zustand/appState";
-
-const convertSource = (source: string) => {
-  return source?.replace("https://avdbapi.com/player/?s=", "");
-};
 
 interface Props {
   route: route<"VideoPlayer">;
@@ -48,8 +33,6 @@ export default function VideoPlayer() {
   useKeepAwake();
   const { width } = useWindowDimensions();
 
-  const video = React.useRef<Video>(null);
-
   const route = useRoute<Props["route"]>();
 
   const { movie } = route.params;
@@ -58,10 +41,6 @@ export default function VideoPlayer() {
   const [movieDetail, setMovieDetail] = React.useState<MovieDetailResult>(
     {} as MovieDetailResult
   );
-
-  const [fullscreen, setFullscreen] = React.useState(false);
-
-  const [isMuted, setIsMuted] = React.useState(true);
 
   const [loading, setLoading] = React.useState(true);
 
@@ -88,7 +67,7 @@ export default function VideoPlayer() {
         .setLikeVideos(likedVideos.filter((item) => item !== movie));
       ToastAndroid.show("Đã xoá khỏi yêu thích", ToastAndroid.SHORT);
     } else {
-      useAppStore.getState().setLikeVideos([...likedVideos, movie]);
+      useAppStore.getState().setLikeVideos([movie, ...likedVideos]);
       ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT);
     }
   };
@@ -100,9 +79,6 @@ export default function VideoPlayer() {
       setRelatedVideosLoading(false);
     };
     getRelatedVideos();
-    return () => {
-      video.current?.unloadAsync();
-    };
   }, [route.params.movie.id]);
 
   React.useEffect(() => {
@@ -119,41 +95,7 @@ export default function VideoPlayer() {
     setLoading(true);
     setTitle(movie.origin_name);
     setActor(movie.actor);
-    video.current
-      ?.loadAsync(
-        {
-          uri: convertSource(
-            movie.episodes.server_data.Full?.link_embed as string
-          ),
-        },
-        {
-          shouldPlay: true,
-          isMuted: true,
-        },
-        true
-      )
-      .then(() => setLoading(false))
-      .catch(() => Alert.alert("Lỗi", "Không thể phát video này"));
   }, [route.params.movie.id]);
-
-  React.useEffect(() => {
-    const handleBackPress = () => {
-      if (fullscreen) {
-        ExpoOrientation.lockAsync(ExpoOrientation.OrientationLock.PORTRAIT);
-        setFullscreen(false);
-        setStatusBarHidden(false, "fade");
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
-
-    return () => {
-      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
-    };
-  }, [fullscreen, setFullscreen]);
 
   return (
     <GestureHandlerRootView>
@@ -164,71 +106,6 @@ export default function VideoPlayer() {
           backgroundColor: "#000000",
         }}
       >
-        {/* <VideoPlayers
-          {...defaultProps}
-          autoHidePlayer={false}
-          errorCallback={() => Alert.alert("Lỗi", "Không thể phát video này")}
-          fullscreen={{
-            inFullscreen: fullscreen,
-            enterFullscreen: async function () {
-              setStatusBarHidden(true, "fade");
-              await ExpoOrientation.lockAsync(
-                ExpoOrientation.OrientationLock.LANDSCAPE
-              );
-              setFullscreen(true);
-            },
-            exitFullscreen: async function () {
-              setStatusBarHidden(false, "fade");
-              await ExpoOrientation.lockAsync(
-                ExpoOrientation.OrientationLock.DEFAULT
-              );
-              setFullscreen(false);
-            },
-          }}
-          timeVisible={true}
-          slider={{
-            thumbTintColor: theme.colors.primary,
-            minimumTrackTintColor: theme.colors.secondary,
-            maximumTrackTintColor: theme.colors.surfaceVariant,
-          }}
-          mute={{
-            visible: true,
-            enterMute: async function () {
-              setIsMuted(true);
-            },
-            exitMute: async function () {
-              setIsMuted(false);
-            },
-            isMute: isMuted,
-          }}
-          videoProps={{
-            ref: video as any,
-            shouldPlay: true,
-            resizeMode: ResizeMode.CONTAIN,
-            source: {
-              uri: convertSource(
-                movie.episodes.server_data.Full?.link_embed as string
-              ),
-            },
-            posterSource: {
-              uri: movie.poster_url,
-            },
-            posterStyle: {
-              resizeMode: "cover",
-              width,
-              height: width * (9 / 16),
-            },
-            usePoster: true,
-            isMuted: isMuted,
-          }}
-          style={{
-            videoBackgroundColor: "black",
-            height: fullscreen
-              ? Dimensions.get("window").height
-              : width * (9 / 16),
-            width: fullscreen ? Dimensions.get("window").width : width,
-          }}
-        /> */}
         <View
           style={{
             width,
@@ -236,6 +113,9 @@ export default function VideoPlayer() {
           }}
         >
           <WebView
+            style={{
+              backgroundColor: "#000",
+            }}
             javaScriptEnabled
             scrollEnabled={false}
             allowsFullscreenVideo={true}
@@ -284,7 +164,7 @@ export default function VideoPlayer() {
                 >
                   {decode(title)}
                 </Text>
-                <TouchableOpacity onPress={toggleLike}>
+                <TouchableOpacity onPress={toggleLike} style={{ padding: 4 }}>
                   <MaterialCommunityIcons
                     name={
                       likedVideos.includes(movie) ? "heart" : "heart-outline"
@@ -368,7 +248,7 @@ export default function VideoPlayer() {
                 <View style={{ flex: 1 }}>
                   <FlashList
                     estimatedItemSize={120}
-                    data={relatedVideos.list}
+                    data={relatedVideos.list.slice(0, 100)}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                       <View>

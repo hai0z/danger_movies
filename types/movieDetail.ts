@@ -1,46 +1,73 @@
-export interface MovieDetailResult {
-  code: number;
+interface MovieDetailRespone {
+  status: boolean;
   msg: string;
-  page: number;
-  pagecount: number;
-  limit: string;
-  total: number;
-  list: List[];
+  movie: Movie;
 }
 
-export interface List {
-  type_name: string;
-  episodes: Episodes;
-  id: number;
+interface Movie {
+  id: string;
   name: string;
   slug: string;
-  origin_name: string;
-  tag: string;
-  category: string[];
-  poster_url: string;
-  thumb_url: string;
-  actor: string[];
-  director: string[];
-  description: string;
-  movie_code: string;
-  created_at: string;
-  country: string[];
-  year: string;
-  quality: string;
+  content: string;
+  type: string;
   status: string;
+  thumb_url: string;
   time: string;
+  quality: string;
+  lang: null;
+  actors: any[];
+  categories: Category[];
+  country: Category;
+  episodes: Episode[];
 }
 
-interface Episodes {
+interface Episode {
   server_name: string;
-  server_data: Serverdata;
+  server_data: Serverdatum[];
 }
 
-interface Serverdata {
-  Full: Full;
-}
-
-interface Full {
+interface Serverdatum {
+  name: string;
   slug: string;
-  link_embed: string;
+  link: string;
 }
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+interface ListMovieResponse {
+  status: boolean;
+  msg: string;
+  movies: Movie[];
+  page: Page;
+}
+
+interface Page {
+  current_page: number;
+  from: number;
+  to: number;
+  total: number;
+  per_page: number;
+  last_page: number;
+}
+
+interface Episode {
+  server_name: string;
+  server_data: Serverdatum[];
+}
+
+interface Serverdatum {
+  name: string;
+  slug: string;
+  link: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export { MovieDetailRespone, Movie, ListMovieResponse };

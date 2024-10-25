@@ -9,7 +9,7 @@ import {
 import MovieService from "../service/MovieService";
 import { MasonryFlashList } from "@shopify/flash-list";
 import { useDebounce } from "../hooks/useDebounce";
-import { HomeResult } from "../types";
+import { HomeResult, List } from "../types";
 import Animated from "react-native-reanimated";
 import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
 import MovieItem from "../components/MovieItem";
@@ -29,10 +29,10 @@ const SearchScreen = () => {
 
   const searchVal = useDebounce(searchQuery, 300);
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = async (currentPage: number) => {
     if (page >= movies.pagecount) return;
     setLoadMoreLoading(true);
-    setPage(page + 1);
+    setPage(currentPage);
     const respone: HomeResult = await MovieService.search(
       `${searchVal.toLowerCase()}&pg=${page}`
     );
@@ -41,7 +41,9 @@ const SearchScreen = () => {
       list: [
         ...movies.list,
         ...Array.from(
-          new Map(respone.list.map((item) => [item.movie_code, item])).values()
+          new Map<string, List>(
+            respone.list.map((item) => [item.movie_code, item])
+          ).values()
         ),
       ],
     });
@@ -90,13 +92,19 @@ const SearchScreen = () => {
         <Animated.View style={{ flex: 1, paddingTop: 8 }}>
           <MasonryFlashList
             ListFooterComponent={
-              <View>
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 50,
+                }}
+              >
                 {loadMoreLoading && page !== 1 && searchQuery && (
                   <ActivityIndicator />
                 )}
               </View>
             }
-            onEndReached={handleLoadMore}
+            onEndReached={() => handleLoadMore(page + 1)}
             showsVerticalScrollIndicator={false}
             numColumns={2}
             contentContainerStyle={{ paddingHorizontal: 4 }}

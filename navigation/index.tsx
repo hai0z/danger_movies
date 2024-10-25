@@ -3,10 +3,10 @@ import { Text, View } from "react-native";
 import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TabNavigation from "./BottomNavigation";
-import MovieDetail from "../screens/MovieDetail";
 import { RootStackParamList } from "../types/StackParamlist";
 import VideoPlayer from "../screens/VideoPlayer";
 import CategoryScreen from "../screens/CategoryScreen";
+import VipDetail from "../screens/VipDetail";
 
 function SettingsScreen() {
   return (
@@ -30,13 +30,7 @@ export default function Navigation() {
             animation: "slide_from_right",
           }}
         />
-        <Stack.Screen
-          name="MovieDetail"
-          component={MovieDetail}
-          options={{
-            animation: "slide_from_right",
-          }}
-        />
+
         <Stack.Screen
           name="VideoPlayer"
           component={VideoPlayer}
@@ -47,6 +41,13 @@ export default function Navigation() {
         <Stack.Screen
           name="Category"
           component={CategoryScreen}
+          options={{
+            animation: "slide_from_right",
+          }}
+        />
+        <Stack.Screen
+          name="VipPlayer"
+          component={VipDetail}
           options={{
             animation: "slide_from_right",
           }}

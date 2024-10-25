@@ -54,13 +54,13 @@ class MovieService {
       }
       case Category.Uncensored_Leaked: {
         const response = await api.get<HomeResult>(
-          `provide/vod?ac=detail&t=9&pg=${page}${this.getRandomParam()}`
+          `provide/vod?ac=detail&t=3&pg=${page}${this.getRandomParam()}`
         );
         return response.data;
       }
       case Category.Chinese: {
         const response = await api.get<HomeResult>(
-          `provide/vod?ac=detail&t=10&pg=${page}${this.getRandomParam()}`
+          `provide/vod?ac=detail&t=5&pg=${page}${this.getRandomParam()}`
         );
         return response.data;
       }
@@ -82,7 +82,7 @@ class MovieService {
     }
   };
   public getRandomVideo = async () => {
-    const page = Math.floor(Math.random() * 2003) + 1;
+    const page = Math.floor(Math.random() * 299) + 1;
     const response = await api.get<HomeResult>(
       `provide/vod?ac=detail&pg=${page}${this.getRandomParam()}`
     );

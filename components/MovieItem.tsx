@@ -1,16 +1,19 @@
 import { View } from "react-native";
 import React, { memo } from "react";
-import { Card, Surface, Text } from "react-native-paper";
+import { Card, Surface, Text, useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { navigation } from "../types/StackParamlist";
 import { List } from "../types";
 import { decode } from "html-entities";
+import { useAppStore } from "../zustand/appState";
 
 interface Props {
   item: List;
 }
 const MovieItem: React.FC<Props> = ({ item }) => {
   const navigation = useNavigation<navigation<"HomeTab">>();
+  const theme = useTheme();
+  const [viewType] = useAppStore((state) => [state.viewType]);
   return (
     <View style={{ width: "100%", paddingHorizontal: 4 }}>
       <Card
@@ -24,6 +27,10 @@ const MovieItem: React.FC<Props> = ({ item }) => {
         onPress={() => navigation.navigate("VideoPlayer", { movie: item })}
       >
         <Card.Cover
+          style={{
+            backgroundColor: theme.colors.surfaceDisabled,
+            height: viewType === "grid" ? 120 : 200,
+          }}
           theme={{
             isV3: false,
           }}
@@ -32,7 +39,7 @@ const MovieItem: React.FC<Props> = ({ item }) => {
           resizeMode="cover"
         />
         {item.time && (
-          <View style={{ position: "absolute", bottom: 55, right: 5 }}>
+          <View style={{ position: "absolute", bottom: 50, right: 5 }}>
             <Surface
               elevation={5}
               style={{

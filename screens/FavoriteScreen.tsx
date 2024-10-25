@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import React from "react";
 import { Appbar, useTheme, FAB } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
@@ -7,6 +7,7 @@ import { useAppStore } from "../zustand/appState";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { FlashList, MasonryFlashList } from "@shopify/flash-list";
 import MovieItem from "../components/MovieItem";
+import VipMovieItem from "../components/VipMovieItem";
 
 const FavoriteScreen = () => {
   const theme = useTheme();
@@ -26,6 +27,7 @@ const FavoriteScreen = () => {
   ]);
 
   const likedVideos = useAppStore((state) => state.likeVideos);
+  const likedVipVideos = useAppStore((state) => state.VipMovie);
 
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
@@ -53,36 +55,46 @@ const FavoriteScreen = () => {
           icon={themeMode === "dark" ? "weather-sunny" : "weather-night"}
           onPress={() => setThemeMode(themeMode === "light" ? "dark" : "light")}
         />
-        <Appbar.Action
-          icon={viewType === "list" ? "view-grid-outline" : "view-list"}
-          onPress={() => {
-            setViewType(viewType === "list" ? "grid" : "list");
-            setIsScrolled(false);
-          }}
-        />
       </Appbar.Header>
 
-      <Animated.View
-        style={{ flex: 1 }}
-        key={viewType}
-        entering={FadeIn.duration(300)}
-      >
-        <MasonryFlashList
-          onScroll={(e) => {
-            setIsScrolled(e.nativeEvent.contentOffset.y > 450);
+      <ScrollView style={{ flex: 1 }} key={viewType}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
           }}
-          ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
-          numColumns={viewType === "list" ? 1 : 2}
-          contentContainerStyle={{ paddingHorizontal: 4 }}
-          data={likedVideos}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => {
-            return <MovieItem item={item} />;
-          }}
-          estimatedItemSize={240}
-        />
-      </Animated.View>
+        >
+          {likedVideos.length > 0 &&
+            likedVideos.map((item, index) => {
+              return (
+                <View
+                  key={index}
+                  style={{
+                    width: "50%",
+                  }}
+                >
+                  <MovieItem key={index} item={item} />
+                </View>
+              );
+            })}
+
+          {likedVipVideos.length > 0 &&
+            likedVipVideos.map((item, index) => {
+              return (
+                <View
+                  key={index}
+                  style={{
+                    width: "50%",
+                  }}
+                >
+                  <VipMovieItem key={index} item={item} />
+                </View>
+              );
+            })}
+        </View>
+      </ScrollView>
     </View>
   );
 };

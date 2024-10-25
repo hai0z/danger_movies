@@ -47,10 +47,10 @@ const CategoryScreen = ({ route }: Props) => {
     getMovies();
   }, [route.params]);
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = async (currentPage: number) => {
     if (page >= movies.pagecount) return;
     setLoadMoreLoading(true);
-    setPage(page + 1);
+    setPage(currentPage);
     const respone: HomeResult = await MovieService.getByCategory(
       categoryName,
       page,
@@ -106,11 +106,17 @@ const CategoryScreen = ({ route }: Props) => {
           <MasonryFlashList
             ref={scrollViewRef}
             ListFooterComponent={
-              <View>
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 50,
+                }}
+              >
                 {loadMoreLoading && page !== 1 && <ActivityIndicator />}
               </View>
             }
-            onEndReached={handleLoadMore}
+            onEndReached={() => handleLoadMore(page + 1)}
             showsVerticalScrollIndicator={false}
             numColumns={2}
             contentContainerStyle={{ paddingHorizontal: 4 }}
