@@ -1,9 +1,9 @@
-import React from "react"
-import { Animated, StyleSheet, View } from "react-native"
-import { Card, useTheme } from "react-native-paper"
+import React from "react";
+import { View, StyleSheet, Animated } from "react-native";
+import { Card, useTheme } from "react-native-paper";
 
 const SkeletonCard = () => {
-  const animatedValue = new Animated.Value(0)
+  const animatedValue = new Animated.Value(0);
 
   React.useEffect(() => {
     Animated.loop(
@@ -19,15 +19,15 @@ const SkeletonCard = () => {
           useNativeDriver: true,
         }),
       ])
-    ).start()
-  }, [])
+    ).start();
+  }, []);
 
   const opacity = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [0.3, 0.7],
-  })
+  });
 
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <View style={styles.container}>
       <Card
@@ -53,8 +53,8 @@ const SkeletonCard = () => {
         </Card.Content>
       </Card>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -75,6 +75,6 @@ const styles = StyleSheet.create({
     width: "80%",
     borderRadius: 4,
   },
-})
+});
 
-export default SkeletonCard
+export default SkeletonCard;

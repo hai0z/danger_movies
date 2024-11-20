@@ -2,7 +2,7 @@ import {RouteProp} from "@react-navigation/native";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {List} from ".";
 import {Category} from "../service/MovieService";
-import {Movie} from "./movieDetail";
+import {Movie} from "../types/movieDetail";
 
 export type RootStackParamList = {
   HomeTab: undefined;

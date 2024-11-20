@@ -1,4 +1,4 @@
-import {Movie} from "../safe-mode/types/movieDetail";
+import {Movie} from "./../safe-mode/types/movieDetail";
 import {create} from "zustand";
 import {createJSONStorage, persist} from "zustand/middleware";
 import zustandStorage from "./storage";

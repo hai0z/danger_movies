@@ -1,64 +1,64 @@
-import { RefreshControl, Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Appbar, useTheme, ActivityIndicator, FAB } from "react-native-paper";
-import MovieService from "../service/MovieService";
-import { StatusBar } from "expo-status-bar";
-import { HomeResult, List } from "../types";
-import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
-import { useAppStore } from "../zustand/appState";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { FlashList, MasonryFlashList } from "@shopify/flash-list";
-import MovieItem from "../components/MovieItem";
+import { RefreshControl, Text, View } from "react-native"
+import React, { useEffect, useState } from "react"
+import { ActivityIndicator, Appbar, FAB, useTheme } from "react-native-paper"
+import MovieService from "../service/MovieService"
+import { StatusBar } from "expo-status-bar"
+import { HomeResult, List } from "../types"
+import SkeletonCard from "../components/Skeleton/CardMovieSkeleton"
+import { useAppStore } from "../zustand/appState"
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
+import { FlashList, MasonryFlashList } from "@shopify/flash-list"
+import MovieItem from "../components/MovieItem"
 
 const HomeScreen = () => {
-  const [movies, setMovies] = useState({} as HomeResult);
-  const [page, setPage] = useState(1);
-  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
-  const theme = useTheme();
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [loading, setLoading] = useState(true);
+  const [movies, setMovies] = useState({} as HomeResult)
+  const [page, setPage] = useState(1)
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false)
+  const theme = useTheme()
+  const [refreshing, setRefreshing] = React.useState(false)
+  const [loading, setLoading] = useState(true)
 
-  const scrollViewRef = React.useRef<FlashList<List>>(null);
+  const scrollViewRef = React.useRef<FlashList<List>>(null)
 
-  const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false)
 
   const [themeMode, setThemeMode] = useAppStore((state) => [
     state.theme,
     state.setTheme,
-  ]);
+  ])
   const [appMode, setAppMode] = useAppStore((state) => [
     state.appMode,
     state.setAppMode,
-  ]);
+  ])
   const [viewType, setViewType] = useAppStore((state) => [
     state.viewType,
     state.setViewType,
-  ]);
-  const [isAppModeChanged, setIsAppModeChanged] = React.useState(false);
+  ])
+  const [isAppModeChanged, setIsAppModeChanged] = React.useState(false)
 
   const getMovies = async (page: number) => {
-    const respone: HomeResult = await MovieService.getAll(page);
+    const respone: HomeResult = await MovieService.getAll(page)
     setMovies({
       ...respone,
       list: Array.from(
         new Map(respone.list.map((item) => [item.movie_code, item])).values()
       ),
-    });
-    setLoading(false);
-  };
+    })
+    setLoading(false)
+  }
 
   const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setLoading(true);
-    getMovies(1);
-    setRefreshing(false);
-  }, []);
+    setRefreshing(true)
+    setLoading(true)
+    getMovies(1)
+    setRefreshing(false)
+  }, [])
 
   const handleLoadMore = async (currentPage: number) => {
-    if (page >= movies.pagecount) return;
-    setLoadMoreLoading(true);
-    setPage(currentPage);
-    const respone: HomeResult = await MovieService.getAll(page);
+    if (page >= movies.pagecount) return
+    setLoadMoreLoading(true)
+    setPage(currentPage)
+    const respone: HomeResult = await MovieService.getAll(page)
     setMovies({
       ...movies,
       list: [
@@ -67,21 +67,21 @@ const HomeScreen = () => {
           new Map(respone.list.map((item) => [item.movie_code, item])).values()
         ),
       ],
-    });
-  };
+    })
+  }
 
   useEffect(() => {
-    getMovies(1);
-  }, []);
+    getMovies(1)
+  }, [])
 
   useEffect(() => {
-    setIsAppModeChanged(true);
-    setPage(1);
+    setIsAppModeChanged(true)
+    setPage(1)
     const timer = setTimeout(() => {
-      setIsAppModeChanged(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [appMode]);
+      setIsAppModeChanged(false)
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [appMode])
 
   if (isAppModeChanged) {
     return (
@@ -102,7 +102,7 @@ const HomeScreen = () => {
           {appMode === "angle" ? "😇" : "😈"}{" "}
         </Text>
       </Animated.View>
-    );
+    )
   }
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
@@ -137,8 +137,8 @@ const HomeScreen = () => {
         <Appbar.Action
           icon={viewType === "list" ? "view-grid-outline" : "view-list"}
           onPress={() => {
-            setViewType(viewType === "list" ? "grid" : "list");
-            setIsScrolled(false);
+            setViewType(viewType === "list" ? "grid" : "list")
+            setIsScrolled(false)
           }}
         />
       </Appbar.Header>
@@ -150,7 +150,7 @@ const HomeScreen = () => {
         >
           <MasonryFlashList
             onScroll={(e) => {
-              setIsScrolled(e.nativeEvent.contentOffset.y > 450);
+              setIsScrolled(e.nativeEvent.contentOffset.y > 450)
             }}
             ref={scrollViewRef}
             refreshControl={
@@ -174,7 +174,7 @@ const HomeScreen = () => {
             data={movies.list}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => {
-              return <MovieItem item={item} />;
+              return <MovieItem item={item} />
             }}
             estimatedItemSize={240}
           />
@@ -200,7 +200,7 @@ const HomeScreen = () => {
         </Animated.View>
       )}
     </View>
-  );
-};
+  )
+}
 
-export default HomeScreen;
+export default HomeScreen

@@ -1,58 +1,58 @@
-import { navigation, route } from "../types/StackParamlist";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import * as React from "react";
-import { View, useWindowDimensions, Image, ToastAndroid } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Chip, Divider, useTheme } from "react-native-paper";
-import { Text } from "react-native-paper";
-import { StatusBar } from "expo-status-bar";
-import { HomeResult } from "../types";
-import MovieService, { Category } from "../service/MovieService";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { MovieDetailResult } from "../types/movieDetail";
-import SkeletonLoading from "../components/Skeleton/SkeletonLoading";
-import { useKeepAwake } from "expo-keep-awake";
+import { navigation, route } from "../types/StackParamlist"
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"
+import * as React from "react"
+import { View, useWindowDimensions, Image, ToastAndroid } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import { Button, Chip, Divider, useTheme } from "react-native-paper"
+import { Text } from "react-native-paper"
+import { StatusBar } from "expo-status-bar"
+import { HomeResult } from "../types"
+import MovieService, { Category } from "../service/MovieService"
+import { useNavigation, useRoute } from "@react-navigation/native"
+import { MovieDetailResult } from "../types/movieDetail"
+import SkeletonLoading from "../components/Skeleton/SkeletonLoading"
+import { useKeepAwake } from "expo-keep-awake"
 import {
   GestureHandlerRootView,
   ScrollView,
   TouchableOpacity,
-} from "react-native-gesture-handler";
-import slugify from "slugify";
-import WebView from "react-native-webview";
-import { useAppStore } from "../../zustand/appState";
-import { decode } from "html-entities";
-import dayjs from "dayjs";
+} from "react-native-gesture-handler"
+import slugify from "slugify"
+import WebView from "react-native-webview"
+import { useAppStore } from "../../zustand/appState"
+import { decode } from "html-entities"
+import dayjs from "dayjs"
 
 interface Props {
-  route: route<"VideoPlayer">;
+  route: route<"VideoPlayer">
 }
 
 export default function VideoPlayer() {
-  useKeepAwake();
-  const { width } = useWindowDimensions();
+  useKeepAwake()
+  const { width } = useWindowDimensions()
 
-  const route = useRoute<Props["route"]>();
+  const route = useRoute<Props["route"]>()
 
-  const { movie } = route.params;
+  const { movie } = route.params
 
   const [movieDetail, setMovieDetail] = React.useState<MovieDetailResult>(
     {} as MovieDetailResult
-  );
-  const [relatedMovies, setRelatedMovies] = React.useState<HomeResult>();
+  )
+  const [relatedMovies, setRelatedMovies] = React.useState<HomeResult>()
 
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(true)
 
-  const [actor, setActor] = React.useState<string[]>();
+  const [actor, setActor] = React.useState<string[]>()
 
   const [currentEp, setCurrentEp] = React.useState(
     {} as MovieDetailResult["movie"]["episodes"][0]["items"][0]
-  );
+  )
 
-  const likedVideos = useAppStore((state) => state.likedAnglesMovies);
+  const likedVideos = useAppStore((state) => state.likedAnglesMovies)
 
-  const navigation = useNavigation<navigation<"VideoPlayer">>();
+  const navigation = useNavigation<navigation<"VideoPlayer">>()
 
-  const theme = useTheme();
+  const theme = useTheme()
 
   const toggleLike = () => {
     if (likedVideos.findIndex((item) => item.slug === movie.slug) !== -1) {
@@ -60,35 +60,35 @@ export default function VideoPlayer() {
         .getState()
         .setLikedAnglesMovies(
           likedVideos.filter((item) => item.slug !== movie.slug)
-        );
-      ToastAndroid.show("Đã xoá khỏi yêu thích", ToastAndroid.SHORT);
+        )
+      ToastAndroid.show("Đã xoá khỏi yêu thích", ToastAndroid.SHORT)
     } else {
       useAppStore
         .getState()
-        .setLikedAnglesMovies([movieDetail?.movie, ...likedVideos]);
-      ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT);
+        .setLikedAnglesMovies([movieDetail?.movie, ...likedVideos])
+      ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT)
     }
-  };
+  }
   const handleChangeEp = (
     ep: MovieDetailResult["movie"]["episodes"][0]["items"][0]
   ) => {
-    setCurrentEp(ep);
-  };
+    setCurrentEp(ep)
+  }
 
   React.useEffect(() => {
-    setLoading(true);
-    (async () => {
+    setLoading(true)
+    ;(async () => {
       const [respone, relatedMovies] = await Promise.all([
         MovieService.getMovieDetail(movie.slug),
         MovieService.getRandomVideo(),
-      ]);
-      setMovieDetail(respone);
-      setActor(respone.movie.casts);
-      setCurrentEp(respone?.movie?.episodes?.[0]?.items?.[0]);
-      setRelatedMovies(relatedMovies);
-      setLoading(false);
-    })();
-  }, [movie.slug]);
+      ])
+      setMovieDetail(respone)
+      setActor(respone.movie.casts)
+      setCurrentEp(respone?.movie?.episodes?.[0]?.items?.[0])
+      setRelatedMovies(relatedMovies)
+      setLoading(false)
+    })()
+  }, [movie.slug])
 
   return (
     <GestureHandlerRootView>
@@ -222,7 +222,7 @@ export default function VideoPlayer() {
                                 replacement: "-",
                                 lower: true,
                               }),
-                            });
+                            })
                           }}
                         >
                           <Text style={{ color: theme.colors.primary }}>
@@ -282,7 +282,7 @@ export default function VideoPlayer() {
                               replacement: "-",
                               lower: true,
                             }),
-                          });
+                          })
                         }}
                       >
                         {item.name}
@@ -326,7 +326,7 @@ export default function VideoPlayer() {
                           {item?.items?.map((ep) => (
                             <Button
                               onPress={() => {
-                                handleChangeEp(ep);
+                                handleChangeEp(ep)
                               }}
                               mode={
                                 currentEp?.embed === ep.embed
@@ -375,7 +375,7 @@ export default function VideoPlayer() {
                       <TouchableOpacity
                         activeOpacity={0.8}
                         onPress={() => {
-                          navigation.navigate("VideoPlayer", { movie: item });
+                          navigation.navigate("VideoPlayer", { movie: item })
                         }}
                         key={item?.slug}
                         style={{ marginRight: 8, width: 128 }}
@@ -408,5 +408,5 @@ export default function VideoPlayer() {
         </View>
       </SafeAreaView>
     </GestureHandlerRootView>
-  );
+  )
 }

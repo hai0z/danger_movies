@@ -1,62 +1,62 @@
-import { View } from "react-native"
-import React, { useEffect, useState } from "react"
-import { ActivityIndicator, Appbar, FAB, useTheme } from "react-native-paper"
-import MovieService, { Category } from "../service/MovieService"
-import { FlashList, MasonryFlashList } from "@shopify/flash-list"
-import { useNavigation } from "@react-navigation/native"
-import { navigation, route } from "../types/StackParamlist"
-import { HomeResult, List } from "../types"
-import { StatusBar } from "expo-status-bar"
-import SkeletonCard from "../components/Skeleton/CardMovieSkeleton"
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
-import MovieItem from "../components/MovieItem"
+import { View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Appbar, useTheme, ActivityIndicator, FAB } from "react-native-paper";
+import MovieService, { Category } from "../service/MovieService";
+import { FlashList, MasonryFlashList } from "@shopify/flash-list";
+import { useNavigation } from "@react-navigation/native";
+import { navigation, route } from "../types/StackParamlist";
+import { HomeResult, List } from "../types";
+import { StatusBar } from "expo-status-bar";
+import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import MovieItem from "../components/MovieItem";
 
 interface Props {
-  route: route<"Category">
+  route: route<"Category">;
 }
 
 const CategoryScreen = ({ route }: Props) => {
-  const [movies, setMovies] = useState({} as HomeResult)
-  const [page, setPage] = useState(1)
-  const [loadMoreLoading, setLoadMoreLoading] = useState(false)
-  const theme = useTheme()
-  const { categoryName, title, keyword } = route.params
+  const [movies, setMovies] = useState({} as HomeResult);
+  const [page, setPage] = useState(1);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const theme = useTheme();
+  const { categoryName, title, keyword } = route.params;
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
-  const navigation = useNavigation<navigation<"HomeTab">>()
-  const scrollViewRef = React.useRef<FlashList<List>>(null)
+  const navigation = useNavigation<navigation<"HomeTab">>();
+  const scrollViewRef = React.useRef<FlashList<List>>(null);
 
   const getMovies = async () => {
-    setLoading(true)
+    setLoading(true);
     const respone: HomeResult = await MovieService.getByCategory(
       categoryName,
       page,
       keyword
-    )
+    );
     setMovies({
       ...respone,
       list: Array.from(
         new Map(respone.list.map((item) => [item.movie_code, item])).values()
       ),
-    })
-    setLoading(false)
-  }
+    });
+    setLoading(false);
+  };
 
   useEffect(() => {
-    getMovies()
-  }, [route.params])
+    getMovies();
+  }, [route.params]);
 
   const handleLoadMore = async (currentPage: number) => {
-    if (page >= movies.pagecount) return
-    setLoadMoreLoading(true)
-    setPage(currentPage)
+    if (page >= movies.pagecount) return;
+    setLoadMoreLoading(true);
+    setPage(currentPage);
     const respone: HomeResult = await MovieService.getByCategory(
       categoryName,
       page,
       keyword
-    )
-    console.log(respone.pagecount, page)
+    );
+    console.log(respone.pagecount, page);
     if (respone.pagecount > page) {
       setMovies({
         ...movies,
@@ -68,10 +68,10 @@ const CategoryScreen = ({ route }: Props) => {
             ).values()
           ),
         ],
-      })
+      });
     }
-    setLoadMoreLoading(false)
-  }
+    setLoadMoreLoading(false);
+  };
 
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
@@ -87,8 +87,8 @@ const CategoryScreen = ({ route }: Props) => {
           zIndex: 999,
         }}
         onPress={() => {
-          scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true })
-          getMovies()
+          scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
+          getMovies();
         }}
       />
 
@@ -139,10 +139,10 @@ const CategoryScreen = ({ route }: Props) => {
             )}
             estimatedItemSize={240}
           />
-        </Animated.View>
+                  </Animated.View>
       )}
     </View>
-  )
-}
+  );
+};
 
-export default CategoryScreen
+export default CategoryScreen;
