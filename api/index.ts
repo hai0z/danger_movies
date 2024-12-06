@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "axios"
 
 const api = axios.create({
   baseURL: " https://avdbapi.com/api.php/",
@@ -7,6 +7,6 @@ const api = axios.create({
     Pragma: "no-cache",
     Expires: "0",
   },
-});
+})
 
-export default api;
+export default api

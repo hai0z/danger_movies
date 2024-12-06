@@ -1,61 +1,59 @@
-import { View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Appbar, useTheme, ActivityIndicator, FAB } from "react-native-paper";
-import MovieService, { Category } from "../service/MovieService";
-import { FlashList, MasonryFlashList } from "@shopify/flash-list";
-import { useNavigation } from "@react-navigation/native";
-import { navigation, route } from "../types/StackParamlist";
-import { HomeResult, Item } from "../types";
-import { StatusBar } from "expo-status-bar";
-import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import MovieItem from "../components/MovieItem";
-import { SearchResult } from "../types/searchResult";
+import { View } from "react-native"
+import React, { useEffect, useState } from "react"
+import { Appbar, useTheme, ActivityIndicator, FAB } from "react-native-paper"
+import MovieService, { Category } from "../service/MovieService"
+import { FlashList, MasonryFlashList } from "@shopify/flash-list"
+import { useNavigation } from "@react-navigation/native"
+import { navigation, route } from "../types/StackParamlist"
+import { HomeResult, Item } from "../types"
+import { StatusBar } from "expo-status-bar"
+import SkeletonCard from "../components/Skeleton/CardMovieSkeleton"
+import MovieItem from "../components/MovieItem"
 
 interface Props {
-  route: route<"Category">;
+  route: route<"Category">
 }
 
 const CategoryScreen = ({ route }: Props) => {
-  const [movies, setMovies] = useState({} as HomeResult);
-  const [page, setPage] = useState(1);
-  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
-  const theme = useTheme();
-  const { categoryName, title, slug } = route.params;
+  const [movies, setMovies] = useState({} as HomeResult)
+  const [page, setPage] = useState(1)
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false)
+  const theme = useTheme()
+  const { categoryName, title, slug } = route.params
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true)
 
-  const [isScrolling, setIsScrolling] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false)
 
-  const navigation = useNavigation<navigation<"HomeTab">>();
-  const scrollViewRef = React.useRef<FlashList<Item>>(null);
+  const navigation = useNavigation<navigation<"HomeTab">>()
+  const scrollViewRef = React.useRef<FlashList<Item>>(null)
 
   const getMovies = async () => {
-    setLoading(true);
-    const respone = await MovieService.getByCategory(categoryName, page, slug);
-    setMovies(respone);
-    setLoading(false);
-  };
+    setLoading(true)
+    const respone = await MovieService.getByCategory(categoryName, page, slug)
+    setMovies(respone)
+    setLoading(false)
+  }
 
   useEffect(() => {
-    getMovies();
-  }, [route.params]);
+    getMovies()
+  }, [route.params])
 
   const handleLoadMore = async (currentPage: number) => {
-    if (page >= movies.paginate?.total_page) return;
-    setLoadMoreLoading(true);
-    setPage(currentPage);
+    if (page >= movies.paginate?.total_page) return
+    setLoadMoreLoading(true)
+    setPage(currentPage)
     const respone = await MovieService.getByCategory(
       categoryName,
       currentPage,
       slug
-    );
+    )
     setMovies({
       ...movies,
       items: [...movies.items, ...respone.items],
-    });
-    setLoadMoreLoading(false);
-  };
+    })
+    setLoadMoreLoading(false)
+  }
 
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
@@ -70,7 +68,7 @@ const CategoryScreen = ({ route }: Props) => {
           zIndex: 999,
         }}
         onPress={() => {
-          scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
+          scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true })
         }}
       />
 
@@ -80,17 +78,13 @@ const CategoryScreen = ({ route }: Props) => {
         <Appbar.Content title={title} />
       </Appbar.Header>
       {!loading ? (
-        <Animated.View
-          style={{ flex: 1 }}
-          entering={FadeIn.duration(300)}
-          exiting={FadeOut.duration(300)}
-        >
+        <View style={{ flex: 1 }}>
           <MasonryFlashList
             onScroll={({ nativeEvent }) => {
               if (nativeEvent.contentOffset.y > 450) {
-                setIsScrolling(true);
+                setIsScrolling(true)
               } else {
-                setIsScrolling(false);
+                setIsScrolling(false)
               }
             }}
             ref={scrollViewRef}
@@ -113,9 +107,9 @@ const CategoryScreen = ({ route }: Props) => {
             renderItem={({ item }) => <MovieItem item={item} />}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       ) : (
-        <Animated.View style={{ flex: 1 }} exiting={FadeOut.duration(300)}>
+        <View style={{ flex: 1 }}>
           <MasonryFlashList
             numColumns={2}
             showsVerticalScrollIndicator={false}
@@ -128,10 +122,10 @@ const CategoryScreen = ({ route }: Props) => {
             )}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       )}
     </View>
-  );
-};
+  )
+}
 
-export default CategoryScreen;
+export default CategoryScreen

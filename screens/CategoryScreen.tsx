@@ -8,7 +8,6 @@ import { navigation, route } from "../types/StackParamlist"
 import { HomeResult, List } from "../types"
 import { StatusBar } from "expo-status-bar"
 import SkeletonCard from "../components/Skeleton/CardMovieSkeleton"
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import MovieItem from "../components/MovieItem"
 
 interface Props {
@@ -98,11 +97,7 @@ const CategoryScreen = ({ route }: Props) => {
         <Appbar.Content title={title} />
       </Appbar.Header>
       {!loading ? (
-        <Animated.View
-          style={{ flex: 1 }}
-          entering={FadeIn.duration(300)}
-          exiting={FadeOut.duration(300)}
-        >
+        <View style={{ flex: 1 }}>
           <MasonryFlashList
             ref={scrollViewRef}
             ListFooterComponent={
@@ -124,9 +119,9 @@ const CategoryScreen = ({ route }: Props) => {
             renderItem={({ item }) => <MovieItem item={item} />}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       ) : (
-        <Animated.View style={{ flex: 1 }} exiting={FadeOut.duration(300)}>
+        <View style={{ flex: 1 }}>
           <MasonryFlashList
             numColumns={2}
             showsVerticalScrollIndicator={false}
@@ -139,7 +134,7 @@ const CategoryScreen = ({ route }: Props) => {
             )}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       )}
     </View>
   )

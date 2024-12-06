@@ -1,41 +1,40 @@
-import { View } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View } from "react-native"
+import React, { useEffect, useState } from "react"
 import {
   Appbar,
   useTheme,
   Searchbar,
   ActivityIndicator,
-} from "react-native-paper";
-import MovieService from "../service/MovieService";
-import { MasonryFlashList } from "@shopify/flash-list";
-import { useDebounce } from "../hooks/useDebounce";
-import { HomeResult, List } from "../types";
-import Animated from "react-native-reanimated";
-import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
-import MovieItem from "../components/MovieItem";
+} from "react-native-paper"
+import MovieService from "../service/MovieService"
+import { MasonryFlashList } from "@shopify/flash-list"
+import { useDebounce } from "../hooks/useDebounce"
+import { HomeResult, List } from "../types"
+import SkeletonCard from "../components/Skeleton/CardMovieSkeleton"
+import MovieItem from "../components/MovieItem"
 
 const SearchScreen = () => {
-  const [movies, setMovies] = useState({} as HomeResult);
+  const [movies, setMovies] = useState({} as HomeResult)
 
-  const theme = useTheme();
+  const theme = useTheme()
 
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState("")
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
 
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1)
 
-  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false)
 
-  const searchVal = useDebounce(searchQuery, 300);
+  const searchVal = useDebounce(searchQuery, 300)
 
   const handleLoadMore = async (currentPage: number) => {
-    if (page >= movies.pagecount) return;
-    setLoadMoreLoading(true);
-    setPage(currentPage);
+    if (page >= movies.pagecount) return
+    setLoadMoreLoading(true)
+    setPage(currentPage)
     const respone: HomeResult = await MovieService.search(
       `${searchVal.toLowerCase()}&pg=${page}`
-    );
+    )
     setMovies({
       ...movies,
       list: [
@@ -46,33 +45,33 @@ const SearchScreen = () => {
           ).values()
         ),
       ],
-    });
-  };
+    })
+  }
   useEffect(() => {
     if (!searchVal) {
-      setMovies({} as HomeResult);
-      setPage(1);
-      setLoadMoreLoading(false);
-      return;
+      setMovies({} as HomeResult)
+      setPage(1)
+      setLoadMoreLoading(false)
+      return
     }
     const getMovies = async () => {
-      setLoading(true);
-      setMovies({} as HomeResult);
+      setLoading(true)
+      setMovies({} as HomeResult)
       const respone: HomeResult = await MovieService.search(
         searchVal.toLowerCase()
-      );
+      )
       setMovies({
         ...respone,
         list: Array.from(
           new Map(respone.list.map((item) => [item.movie_code, item])).values()
         ),
-      });
-      setLoading(false);
-    };
-    if (searchVal && searchVal.length > 0) {
-      getMovies();
+      })
+      setLoading(false)
     }
-  }, [searchVal]);
+    if (searchVal && searchVal.length > 0) {
+      getMovies()
+    }
+  }, [searchVal])
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
       <Appbar.Header>
@@ -89,7 +88,7 @@ const SearchScreen = () => {
         loading={false}
       />
       {!loading ? (
-        <Animated.View style={{ flex: 1, paddingTop: 8 }}>
+        <View style={{ flex: 1, paddingTop: 8 }}>
           <MasonryFlashList
             ListFooterComponent={
               <View
@@ -112,9 +111,9 @@ const SearchScreen = () => {
             renderItem={({ item }) => <MovieItem item={item} />}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       ) : (
-        <Animated.View style={{ flex: 1, paddingTop: 8 }}>
+        <View style={{ flex: 1, paddingTop: 8 }}>
           <MasonryFlashList
             numColumns={2}
             showsVerticalScrollIndicator={false}
@@ -127,10 +126,10 @@ const SearchScreen = () => {
             )}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       )}
     </View>
-  );
-};
+  )
+}
 
-export default SearchScreen;
+export default SearchScreen

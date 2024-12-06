@@ -1,33 +1,32 @@
-import { ScrollView, View } from "react-native";
-import React from "react";
-import { Appbar, useTheme, FAB } from "react-native-paper";
-import { StatusBar } from "expo-status-bar";
-import { List } from "../types";
-import { useAppStore } from "../zustand/appState";
-import Animated, { FadeIn } from "react-native-reanimated";
-import { FlashList, MasonryFlashList } from "@shopify/flash-list";
-import MovieItem from "../components/MovieItem";
-import VipMovieItem from "../components/VipMovieItem";
+import { ScrollView, View } from "react-native"
+import React from "react"
+import { Appbar, useTheme, FAB } from "react-native-paper"
+import { StatusBar } from "expo-status-bar"
+import { List } from "../types"
+import { useAppStore } from "../zustand/appState"
+import { FlashList, MasonryFlashList } from "@shopify/flash-list"
+import MovieItem from "../components/MovieItem"
+import VipMovieItem from "../components/VipMovieItem"
 
 const FavoriteScreen = () => {
-  const theme = useTheme();
+  const theme = useTheme()
 
-  const scrollViewRef = React.useRef<FlashList<List>>(null);
+  const scrollViewRef = React.useRef<FlashList<List>>(null)
 
-  const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false)
 
   const [themeMode, setThemeMode] = useAppStore((state) => [
     state.theme,
     state.setTheme,
-  ]);
+  ])
 
   const [viewType, setViewType] = useAppStore((state) => [
     state.viewType,
     state.setViewType,
-  ]);
+  ])
 
-  const likedVideos = useAppStore((state) => state.likeVideos);
-  const likedVipVideos = useAppStore((state) => state.VipMovie);
+  const likedVideos = useAppStore((state) => state.likeVideos)
+  const likedVipVideos = useAppStore((state) => state.VipMovie)
 
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
@@ -77,7 +76,7 @@ const FavoriteScreen = () => {
                 >
                   <MovieItem key={index} item={item} />
                 </View>
-              );
+              )
             })}
 
           {likedVipVideos.length > 0 &&
@@ -91,12 +90,12 @@ const FavoriteScreen = () => {
                 >
                   <VipMovieItem key={index} item={item} />
                 </View>
-              );
+              )
             })}
         </View>
       </ScrollView>
     </View>
-  );
-};
+  )
+}
 
-export default FavoriteScreen;
+export default FavoriteScreen

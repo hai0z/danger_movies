@@ -1,22 +1,21 @@
-import { RefreshControl, Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import { RefreshControl, Text, View } from "react-native"
+import React, { useEffect, useState } from "react"
 import {
   Appbar,
   useTheme,
   ActivityIndicator,
   FAB,
   Chip,
-} from "react-native-paper";
-import { StatusBar } from "expo-status-bar";
+} from "react-native-paper"
+import { StatusBar } from "expo-status-bar"
 
-import { useAppStore } from "../zustand/appState";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { FlashList, MasonryFlashList } from "@shopify/flash-list";
+import { useAppStore } from "../zustand/appState"
+import { FlashList, MasonryFlashList } from "@shopify/flash-list"
 
-import { ListMovieResponse, Movie } from "../service/MovieType";
-import ApiService, { MOVIE_CATEGORY } from "../service/VipService";
-import VipMovieItem from "../components/VipMovieItem";
-import SkeletonCard from "../components/Skeleton/CardMovieSkeleton";
+import { ListMovieResponse, Movie } from "../service/MovieType"
+import ApiService, { MOVIE_CATEGORY } from "../service/VipService"
+import VipMovieItem from "../components/VipMovieItem"
+import SkeletonCard from "../components/Skeleton/CardMovieSkeleton"
 
 const theLoaiArr = [
   {
@@ -51,88 +50,87 @@ const theLoaiArr = [
     id: "hentai",
     name: "Hentai",
   },
-];
+]
 const VipScreen = () => {
-  const [movies, setMovies] = useState({} as ListMovieResponse);
-  const [page, setPage] = useState(1);
-  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
-  const theme = useTheme();
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [loading, setLoading] = useState(true);
+  const [movies, setMovies] = useState({} as ListMovieResponse)
+  const [page, setPage] = useState(1)
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false)
+  const theme = useTheme()
+  const [refreshing, setRefreshing] = React.useState(false)
+  const [loading, setLoading] = useState(true)
 
-  const scrollViewRef = React.useRef<FlashList<Movie>>(null);
+  const scrollViewRef = React.useRef<FlashList<Movie>>(null)
 
-  const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false)
 
   const [themeMode, setThemeMode] = useAppStore((state) => [
     state.theme,
     state.setTheme,
-  ]);
+  ])
   const [appMode, setAppMode] = useAppStore((state) => [
     state.appMode,
     state.setAppMode,
-  ]);
+  ])
   const [viewType, setViewType] = useAppStore((state) => [
     state.viewType,
     state.setViewType,
-  ]);
-  const [isAppModeChanged, setIsAppModeChanged] = React.useState(false);
+  ])
+  const [isAppModeChanged, setIsAppModeChanged] = React.useState(false)
 
-  const [selectedTheLoai, setSelectedTheLoai] = useState(theLoaiArr[1].id);
+  const [selectedTheLoai, setSelectedTheLoai] = useState(theLoaiArr[1].id)
 
   const getMovies = async (page: number) => {
-    setLoading(true);
+    setLoading(true)
     const respone: ListMovieResponse = await ApiService.getByCategory(
       selectedTheLoai as MOVIE_CATEGORY,
       page
-    );
-    setMovies(respone);
-    setLoading(false);
-  };
+    )
+    setMovies(respone)
+    setLoading(false)
+  }
 
   const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setLoading(true);
-    getMovies(1);
-    setRefreshing(false);
-  }, []);
+    setRefreshing(true)
+    setLoading(true)
+    getMovies(1)
+    setRefreshing(false)
+  }, [])
 
   const handleLoadMore = async (currentPage: number) => {
-    if (page >= movies.page.last_page) return;
-    setLoadMoreLoading(true);
-    setPage(currentPage);
+    if (page >= movies.page.last_page) return
+    setLoadMoreLoading(true)
+    setPage(currentPage)
     const respone: ListMovieResponse = await ApiService.getByCategory(
       selectedTheLoai as MOVIE_CATEGORY,
       page
-    );
+    )
     setMovies({
       ...movies,
       movies: [...movies.movies, ...respone.movies],
-    });
-  };
+    })
+  }
 
   useEffect(() => {
-    getMovies(1);
-  }, [selectedTheLoai]);
+    getMovies(1)
+  }, [selectedTheLoai])
 
   useEffect(() => {
-    setIsAppModeChanged(true);
-    setPage(1);
+    setIsAppModeChanged(true)
+    setPage(1)
     const timer = setTimeout(() => {
-      setIsAppModeChanged(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [appMode]);
+      setIsAppModeChanged(false)
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [appMode])
   if (isAppModeChanged) {
     return (
-      <Animated.View
+      <View
         style={{
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
           backgroundColor: theme.colors.background,
         }}
-        exiting={FadeOut.duration(1000)}
       >
         <StatusBar
           backgroundColor="transparent"
@@ -141,8 +139,8 @@ const VipScreen = () => {
         <Text style={{ fontSize: 69 }}>
           {appMode === "angle" ? "😇" : "😈"}{" "}
         </Text>
-      </Animated.View>
-    );
+      </View>
+    )
   }
   return (
     <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
@@ -177,20 +175,16 @@ const VipScreen = () => {
         <Appbar.Action
           icon={viewType === "list" ? "view-grid-outline" : "view-list"}
           onPress={() => {
-            setViewType(viewType === "list" ? "grid" : "list");
-            setIsScrolled(false);
+            setViewType(viewType === "list" ? "grid" : "list")
+            setIsScrolled(false)
           }}
         />
       </Appbar.Header>
       {!loading ? (
-        <Animated.View
-          style={{ flex: 1 }}
-          key={viewType}
-          entering={FadeIn.duration(300)}
-        >
+        <View style={{ flex: 1 }} key={viewType}>
           <MasonryFlashList
             onScroll={(e) => {
-              setIsScrolled(e.nativeEvent.contentOffset.y > 450);
+              setIsScrolled(e.nativeEvent.contentOffset.y > 450)
             }}
             ref={scrollViewRef}
             refreshControl={
@@ -236,17 +230,13 @@ const VipScreen = () => {
             data={movies.movies}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => {
-              return <VipMovieItem item={item} />;
+              return <VipMovieItem item={item} />
             }}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       ) : (
-        <Animated.View
-          key={viewType}
-          style={{ flex: 1 }}
-          exiting={FadeOut.duration(300)}
-        >
+        <View key={viewType} style={{ flex: 1 }}>
           <MasonryFlashList
             numColumns={viewType === "list" ? 1 : 2}
             showsVerticalScrollIndicator={false}
@@ -259,10 +249,10 @@ const VipScreen = () => {
             )}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       )}
     </View>
-  );
-};
+  )
+}
 
-export default VipScreen;
+export default VipScreen

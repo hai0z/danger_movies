@@ -6,7 +6,6 @@ import { StatusBar } from "expo-status-bar"
 import { HomeResult, List } from "../types"
 import SkeletonCard from "../components/Skeleton/CardMovieSkeleton"
 import { useAppStore } from "../zustand/appState"
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { FlashList, MasonryFlashList } from "@shopify/flash-list"
 import MovieItem from "../components/MovieItem"
 
@@ -85,14 +84,13 @@ const HomeScreen = () => {
 
   if (isAppModeChanged) {
     return (
-      <Animated.View
+      <View
         style={{
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
           backgroundColor: theme.colors.background,
         }}
-        exiting={FadeOut.duration(1000)}
       >
         <StatusBar
           backgroundColor="transparent"
@@ -101,7 +99,7 @@ const HomeScreen = () => {
         <Text style={{ fontSize: 69 }}>
           {appMode === "angle" ? "😇" : "😈"}{" "}
         </Text>
-      </Animated.View>
+      </View>
     )
   }
   return (
@@ -143,11 +141,7 @@ const HomeScreen = () => {
         />
       </Appbar.Header>
       {!loading ? (
-        <Animated.View
-          style={{ flex: 1 }}
-          key={viewType}
-          entering={FadeIn.duration(300)}
-        >
+        <View style={{ flex: 1 }} key={viewType}>
           <MasonryFlashList
             onScroll={(e) => {
               setIsScrolled(e.nativeEvent.contentOffset.y > 450)
@@ -178,13 +172,9 @@ const HomeScreen = () => {
             }}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       ) : (
-        <Animated.View
-          key={viewType}
-          style={{ flex: 1 }}
-          exiting={FadeOut.duration(300)}
-        >
+        <View key={viewType} style={{ flex: 1 }}>
           <MasonryFlashList
             numColumns={viewType === "list" ? 1 : 2}
             showsVerticalScrollIndicator={false}
@@ -197,7 +187,7 @@ const HomeScreen = () => {
             )}
             estimatedItemSize={240}
           />
-        </Animated.View>
+        </View>
       )}
     </View>
   )

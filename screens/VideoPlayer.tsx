@@ -1,101 +1,99 @@
-import { navigation, route } from "../types/StackParamlist";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import * as React from "react";
-import { View, useWindowDimensions, Image, ToastAndroid } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Divider, TouchableRipple, useTheme } from "react-native-paper";
-import { Text } from "react-native-paper";
-import VideoPlayers from "../components/VideoPlayer/";
-import { setStatusBarHidden, StatusBar } from "expo-status-bar";
-import { HomeResult } from "../types";
-import MovieService, { Category } from "../service/MovieService";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { MovieDetailResult } from "../types/movieDetail";
-import MovieDetailModal from "../components/MovieDetailModal";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import SkeletonLoading from "../components/Skeleton/SkeletonLoading";
-import { useKeepAwake } from "expo-keep-awake";
+import { navigation, route } from "../types/StackParamlist"
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"
+import * as React from "react"
+import { View, useWindowDimensions, Image, ToastAndroid } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import { Divider, TouchableRipple, useTheme } from "react-native-paper"
+import { Text } from "react-native-paper"
+import VideoPlayers from "../components/VideoPlayer/"
+import { setStatusBarHidden, StatusBar } from "expo-status-bar"
+import { HomeResult } from "../types"
+import MovieService, { Category } from "../service/MovieService"
+import { useNavigation, useRoute } from "@react-navigation/native"
+import { MovieDetailResult } from "../types/movieDetail"
+import SkeletonLoading from "../components/Skeleton/SkeletonLoading"
+import { useKeepAwake } from "expo-keep-awake"
 import {
   GestureHandlerRootView,
   TouchableOpacity,
-} from "react-native-gesture-handler";
-import SkeletonMovieItem from "../components/Skeleton/SkeletonMovieItem";
-import { FlashList } from "@shopify/flash-list";
-import { decode } from "html-entities";
-import WebView from "react-native-webview";
-import { useAppStore } from "../zustand/appState";
+} from "react-native-gesture-handler"
+import SkeletonMovieItem from "../components/Skeleton/SkeletonMovieItem"
+import { FlashList } from "@shopify/flash-list"
+import { decode } from "html-entities"
+import WebView from "react-native-webview"
+import { useAppStore } from "../zustand/appState"
 
 interface Props {
-  route: route<"VideoPlayer">;
+  route: route<"VideoPlayer">
 }
 
 export default function VideoPlayer() {
-  useKeepAwake();
-  const { width } = useWindowDimensions();
+  useKeepAwake()
+  const { width } = useWindowDimensions()
 
-  const route = useRoute<Props["route"]>();
+  const route = useRoute<Props["route"]>()
 
-  const { movie } = route.params;
+  const { movie } = route.params
 
-  const bottomSheetModalRef = React.useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = React.useRef<BottomSheetModal>(null)
   const [movieDetail, setMovieDetail] = React.useState<MovieDetailResult>(
     {} as MovieDetailResult
-  );
+  )
 
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(true)
 
-  const [relatedVideosLoading, setRelatedVideosLoading] = React.useState(true);
+  const [relatedVideosLoading, setRelatedVideosLoading] = React.useState(true)
 
-  const [title, setTitle] = React.useState<string>(movie.origin_name);
+  const [title, setTitle] = React.useState<string>(movie.origin_name)
 
-  const [actor, setActor] = React.useState<string[]>(movie.actor);
+  const [actor, setActor] = React.useState<string[]>(movie.actor)
 
   const [relatedVideos, setRelatedVideos] = React.useState<HomeResult>(
     {} as HomeResult
-  );
+  )
 
-  const likedVideos = useAppStore((state) => state.likeVideos);
+  const likedVideos = useAppStore((state) => state.likeVideos)
 
-  const navigation = useNavigation<navigation<"VideoPlayer">>();
+  const navigation = useNavigation<navigation<"VideoPlayer">>()
 
-  const theme = useTheme();
+  const theme = useTheme()
 
   const toggleLike = () => {
     if (likedVideos.includes(movie)) {
       useAppStore
         .getState()
-        .setLikeVideos(likedVideos.filter((item) => item !== movie));
-      ToastAndroid.show("Đã xoá khỏi yêu thích", ToastAndroid.SHORT);
+        .setLikeVideos(likedVideos.filter((item) => item !== movie))
+      ToastAndroid.show("Đã xoá khỏi yêu thích", ToastAndroid.SHORT)
     } else {
-      useAppStore.getState().setLikeVideos([movie, ...likedVideos]);
-      ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT);
+      useAppStore.getState().setLikeVideos([movie, ...likedVideos])
+      ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT)
     }
-  };
+  }
   React.useEffect(() => {
     const getRelatedVideos = async () => {
-      setRelatedVideosLoading(true);
-      const respone = await MovieService.getRandomVideo();
-      setRelatedVideos(respone);
-      setRelatedVideosLoading(false);
-    };
-    getRelatedVideos();
-  }, [route.params.movie.id]);
+      setRelatedVideosLoading(true)
+      const respone = await MovieService.getRandomVideo()
+      setRelatedVideos(respone)
+      setRelatedVideosLoading(false)
+    }
+    getRelatedVideos()
+  }, [route.params.movie.id])
 
   React.useEffect(() => {
-    (async () => {
+    ;(async () => {
       const respone: MovieDetailResult = await MovieService.getMovieDetail(
         movie.id
-      );
-      setMovieDetail(respone);
-      setLoading(false);
-    })();
-  }, [movie.id]);
+      )
+      setMovieDetail(respone)
+      setLoading(false)
+    })()
+  }, [movie.id])
 
   React.useEffect(() => {
-    setLoading(true);
-    setTitle(movie.origin_name);
-    setActor(movie.actor);
-  }, [route.params.movie.id]);
+    setLoading(true)
+    setTitle(movie.origin_name)
+    setActor(movie.actor)
+  }, [route.params.movie.id])
 
   return (
     <GestureHandlerRootView>
@@ -199,7 +197,7 @@ export default function VideoPlayer() {
                         categoryName: Category.other,
                         title: item,
                         keyword: item,
-                      });
+                      })
                     }}
                   >
                     <Text
@@ -301,12 +299,7 @@ export default function VideoPlayer() {
             </View>
           </View>
         </View>
-        <MovieDetailModal
-          handleClose={() => bottomSheetModalRef.current?.dismiss()}
-          movie={movieDetail?.list?.[0]}
-          ref={bottomSheetModalRef}
-        />
       </SafeAreaView>
     </GestureHandlerRootView>
-  );
+  )
 }
