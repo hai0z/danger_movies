@@ -208,7 +208,7 @@ export default function VideoPlayer() {
 
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Text>Quốc gia: </Text>
-                    {movieDetail?.movie?.category["4"]["list"].map(
+                    {movieDetail?.movie?.category?.["4"]?.["list"]?.map(
                       (item, index) => (
                         <TouchableOpacity
                           key={item.name}
@@ -228,7 +228,9 @@ export default function VideoPlayer() {
                           <Text style={{ color: theme.colors.primary }}>
                             {`${item.name}`}
                             {index <
-                            movieDetail?.movie?.category["4"]["list"].length - 1
+                            movieDetail?.movie?.category?.["4"]?.["list"]
+                              ?.length -
+                              1
                               ? ", "
                               : ""}
                           </Text>
@@ -268,26 +270,28 @@ export default function VideoPlayer() {
                       gap: 4,
                     }}
                   >
-                    {movieDetail?.movie?.category["2"]["list"]?.map((item) => (
-                      <Chip
-                        compact
-                        mode="flat"
-                        key={item.id}
-                        onPress={() => {
-                          navigation.push("Category", {
-                            categoryName: Category.the_loai,
-                            title: item.name,
-                            slug: slugify(item.name, {
-                              locale: "vi",
-                              replacement: "-",
-                              lower: true,
-                            }),
-                          })
-                        }}
-                      >
-                        {item.name}
-                      </Chip>
-                    ))}
+                    {movieDetail?.movie?.category?.["2"]?.["list"]?.map(
+                      (item) => (
+                        <Chip
+                          compact
+                          mode="flat"
+                          key={item.id}
+                          onPress={() => {
+                            navigation.push("Category", {
+                              categoryName: Category.the_loai,
+                              title: item.name,
+                              slug: slugify(item.name, {
+                                locale: "vi",
+                                replacement: "-",
+                                lower: true,
+                              }),
+                            })
+                          }}
+                        >
+                          {item.name}
+                        </Chip>
+                      )
+                    )}
                   </View>
                 </View>
                 <View>

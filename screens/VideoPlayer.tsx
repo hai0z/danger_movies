@@ -5,12 +5,9 @@ import { View, useWindowDimensions, Image, ToastAndroid } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Divider, TouchableRipple, useTheme } from "react-native-paper"
 import { Text } from "react-native-paper"
-import VideoPlayers from "../components/VideoPlayer/"
-import { setStatusBarHidden, StatusBar } from "expo-status-bar"
 import { HomeResult } from "../types"
 import MovieService, { Category } from "../service/MovieService"
 import { useNavigation, useRoute } from "@react-navigation/native"
-import { MovieDetailResult } from "../types/movieDetail"
 import SkeletonLoading from "../components/Skeleton/SkeletonLoading"
 import { useKeepAwake } from "expo-keep-awake"
 import {
@@ -246,7 +243,7 @@ export default function VideoPlayer() {
                 <View style={{ flex: 1 }}>
                   <FlashList
                     estimatedItemSize={120}
-                    data={relatedVideos.list.slice(0, 100)}
+                    data={relatedVideos?.list?.slice(0, 100)}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                       <View>
